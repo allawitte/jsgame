@@ -161,7 +161,6 @@ describe('Класс Actor', () => {
     it('Объект не пересекается с объектом расположенным очень далеко', () => {
       const player = new Actor(new Vector(0, 0));
       const coin = new Actor(new Vector(100, 100));
-
       const notIntersected = player.isIntersect(coin);
 
       expect(notIntersected).is.equal(false);
@@ -172,7 +171,6 @@ describe('Класс Actor', () => {
 
       const moveX = new Vector(1, 0);
       const moveY = new Vector(0, 1);
-
       const coins = [
         new Actor(position.plus(moveX.times(-1))),
         new Actor(position.plus(moveY.times(-1))),
@@ -190,7 +188,6 @@ describe('Класс Actor', () => {
     it('Объект не пересекается с объектом расположенным в той же точке, но имеющим отрицательный вектор размера', () => {
       const player = new Actor(new Vector(0, 0), new Vector(1, 1));
       const coin = new Actor(new Vector(0, 0), new Vector(1, 1).times(-1));
-
       const notIntersected = player.isIntersect(coin);
 
       expect(notIntersected).is.equal(false);
@@ -219,6 +216,7 @@ describe('Класс Actor', () => {
       ];
 
       coins.forEach(coin => {
+
         const intersected = player.isIntersect(coin);
 
         expect(intersected).is.equal(true);

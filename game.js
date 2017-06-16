@@ -61,29 +61,61 @@ class Actor {
         if (actor == this) {
             return false;
         }
-        return isInside(actor, this);
+        if (actor.size.x < 0 || actor.size.y < 0) {
+            return false;
+        }
+        return isInside(actor, this) || isInside(this, actor);
 
 
         function isInside(first, second) {
-            if ((first.left < second.left && first.right > second.left) || (second.left < first.left && second.right > first.left)) {
-                return true;
+            if((first.left == second.left) && (first.right > second.right)) {
+                let res = bottomTopCheck();
+                if(res !== undefined){
+                    return res;
+                }
             }
-            if ((first.left > second.right && first.right < second.right) || (second.left > first.right && second.right < first.right)) {
-                return true;
+            if((first.right == second.right) && (first.left > second.left)) {
+                let res = bottomTopCheck();
+                if(res !== undefined){
+                    return res;
+                }
             }
-            if ((first.top < second.top && first.bottom > second.top) || (second.top < first.top && second.bottom > first.top)) {
-                return true;
+            if((first.right == second.right) && (first.left == second.left)) {
+                let res = bottomTopCheck();
+                if(res !== undefined){
+                    return res;
+                }
             }
-            if ((first.top > second.bottom && first.bottom < second.bottom) || (second.top > first.bottom && second.bottom < first.bottom)){
-                return true;
+
+            if((first.left < second.left) && (first.right > second.left)) {
+                let res = bottomTopCheck();
+                if(res !== undefined){
+                    return res;
+                }
             }
-            if ((first.left == second.left && first.right == second.right)) {
-                return true;
-            }
-            if ((first.top == second.top && first.bottom > second.bottom)) {
-                return true;
+
+            if(first.left < second.right && first.right > second.right) {
+                return bottomTopCheck();
             }
             return false;
+
+            function bottomTopCheck(){
+                if(first.bottom >= second.bottom && first.top < second.bottom) {
+                    return true;
+                }
+
+                else if(first.bottom >= second.top && first.top < second.top) {
+                    return true;
+                }
+
+                else if(first.bottom == second.bottom || first.top == second.top) {
+                    return true;
+                }
+
+                else {
+                    return false;
+                }
+            }
         }
     }
 }
@@ -315,7 +347,6 @@ class LevelParser {
         }
         try {
             let obj = new this.actorDictionary[symbol](new Vector());
-            console.log('this.actorDictionary[symbol]', this.actorDictionary[symbol]);
             return obj instanceof Actor ? this.actorDictionary[symbol] : false;
         }
         catch(err) {
@@ -324,7 +355,6 @@ class LevelParser {
 
     }
     createGrid(strings){
-        console.log('strings', strings);
         return strings.map(string => {
             return string.split('').map(symbol => {
                 if(!this.obstacles[symbol]) {
