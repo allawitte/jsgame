@@ -176,9 +176,7 @@ describe('Класс LevelParser', () => {
 
     it('Создает движущиеся объекты для конструктора Actor', () => {
       const parser = new LevelParser({ z: Actor });
-
       const actors = parser.createActors(['z']);
-
       expect(actors).to.have.length(1);
     });
 

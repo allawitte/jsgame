@@ -17,38 +17,16 @@ class Vector {
     }
 }
 class Actor {
-    constructor(pos, size, speed) {
-        const args = [
-            {
-                pos: pos,
-                initX: 0,
-                initY: 0
-            },
-            {
-                size: size,
-                initX: 1,
-                initY: 1
-            },
-            {
-                speed: speed,
-                initX: 0,
-                initY: 0
+    constructor(pos =  new Vector(0,0), size = new Vector(1,1), speed =  new Vector(0,0)) {
+        this.pos = pos;
+        this.size = size;
+        this.speed = speed;
+
+        for (let key in this) {
+            if(!(this[key] instanceof Vector)) {
+                throw new Error(`{key} must be a vector`);
             }
-        ];
-        args.forEach(item => {
-            let key = Object.keys(item)[0];
-            if (!item[key]) {
-                this[key] = new Vector(item.initX, item.initY);
-            }
-            else {
-                if (item[key] instanceof Vector) {
-                    this[key] = item[key];
-                }
-                else {
-                    throw new Error(`passed ${key} must be a Vector`);
-                }
-            }
-        });
+        }
 
     }
 
@@ -83,26 +61,30 @@ class Actor {
         if (actor == this) {
             return false;
         }
+        return isInside(actor, this);
 
-        if ((actor.left < this.left && actor.right > this.left) || (this.left < actor.left && this.right > actor.left)) {
-            return true;
+
+        function isInside(first, second) {
+            if ((first.left < second.left && first.right > second.left) || (second.left < first.left && second.right > first.left)) {
+                return true;
+            }
+            if ((first.left > second.right && first.right < second.right) || (second.left > first.right && second.right < first.right)) {
+                return true;
+            }
+            if ((first.top < second.top && first.bottom > second.top) || (second.top < first.top && second.bottom > first.top)) {
+                return true;
+            }
+            if ((first.top > second.bottom && first.bottom < second.bottom) || (second.top > first.bottom && second.bottom < first.bottom)){
+                return true;
+            }
+            if ((first.left == second.left && first.right == second.right)) {
+                return true;
+            }
+            if ((first.top == second.top && first.bottom > second.bottom)) {
+                return true;
+            }
+            return false;
         }
-        if ((actor.left > this.right && actor.right < this.right) || (this.left > actor.right && this.right < actor.right)) {
-            return true;
-        }
-        if ((actor.top < this.top && actor.bottom > this.top) || (this.top < actor.top && this.bottom > actor.top)) {
-            return true;
-        }
-        if ((actor.top > this.bottom && actor.bottom < this.bottom) || (this.top > actor.bottom && this.bottom < actor.bottom)){
-            return true;
-        }
-        if ((actor.left == this.left && actor.right == this.right)) {
-            return true;
-        }
-        if ((actor.top == this.top && actor.bottom > this.bottom)) {
-            return true;
-        }
-        return false;
     }
 }
 
@@ -110,9 +92,11 @@ class Level {
     constructor(grid = [], actors = []) {
         this.grid = grid;
         this.actors = actors;
-        this.player = actors.filter(actor => { return actor.type == 'player'})[0];
+        this.player = actors.find(actor => { return actor.type == 'player'});
         this.height = this.grid.length;
-        this.width = this.grid.map(item => item.length).length ? Math.max(...this.grid.map(item => item.length)) : 0;
+        this.width = this.grid.reduce((rez,item) => {
+            return rez = item.length > rez ? item.length : rez;
+        }, 0);
         this.status = null;
         this.finishDelay = 1;
     }
@@ -327,9 +311,17 @@ class LevelParser {
             return;
         }
         if(!this.actorDictionary[symbol]){
-            return undefined;
+            return;
         }
-        return  this.actorDictionary[symbol];
+        try {
+            let obj = new this.actorDictionary[symbol](new Vector());
+            console.log('this.actorDictionary[symbol]', this.actorDictionary[symbol]);
+            return obj instanceof Actor ? this.actorDictionary[symbol] : false;
+        }
+        catch(err) {
+            return;
+        }
+
     }
     createGrid(strings){
         console.log('strings', strings);
@@ -348,7 +340,8 @@ class LevelParser {
         }
         return strings.reduce((rez,string, y) => {
             return rez.concat(string.split('').reduce((rez,symbol, x) => {
-               return rez = this.actorDictionary[symbol] ? rez.concat(new this.actorDictionary[symbol](new Vector(x,y))) : rez;
+
+               return rez = this.actorFromSymbol(symbol) ? rez.concat(new this.actorDictionary[symbol](new Vector(x,y))) : rez;
             },[]));
         },[])
     }
