@@ -54,12 +54,12 @@ class Actor {
         return 'actor';
     }
 
-    pointIsInside(point) {
-        console.log('point', point, 'this', this);
-        if((this.left < point.x && point.x < this.right) && (this.top < point.y && point.y < this.bottom)) {
+    pointIsInside(point, object) {
+        console.log('point', point, 'object', object);
+        if((object.left < point.x && point.x < object.right) && (object.top < point.y && point.y < object.bottom)) {
             return true;
         }
-        if((this.left < point.xE && point.xE < this.right) && (this.top < point.yE && point.yE < this.bottom)) {
+        if((object.left < point.xE && point.xE < object.right) && (object.top < point.yE && point.yE < object.bottom)) {
             return true;
         }
         return false;
@@ -79,8 +79,7 @@ class Actor {
         let secondObject = this;
 
         let objects = getObjectsForParsing(actor, secondObject);
-        let rez = objects.pointsList.find(point => this.pointIsInside(point).bind(objects.overObject));
-        console.log('rez', rez);
+        let rez = objects.pointsList.find(point => this.pointIsInside(point, objects.overObject)) ? true : false;
         return rez;
         function getObjectsForParsing(actor, secondObject) {
             let rez = {
