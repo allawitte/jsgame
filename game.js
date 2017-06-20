@@ -17,13 +17,13 @@ class Vector {
     }
 }
 class Actor {
-    constructor(pos =  new Vector(0,0), size = new Vector(1,1), speed =  new Vector(0,0)) {
+    constructor(pos = new Vector(0, 0), size = new Vector(1, 1), speed = new Vector(0, 0)) {
         this.pos = pos;
         this.size = size;
         this.speed = speed;
 
         for (let key in this) {
-            if(!(this[key] instanceof Vector)) {
+            if (!(this[key] instanceof Vector)) {
                 throw new Error(`{key} must be a vector`);
             }
         }
@@ -61,60 +61,96 @@ class Actor {
         if (actor == this) {
             return false;
         }
+
         if (actor.size.x < 0 || actor.size.y < 0) {
             return false;
         }
+
         return isInside(actor, this) || isInside(this, actor);
 
 
         function isInside(first, second) {
-            if((first.left == second.left) && (first.right > second.right)) {
-                let res = bottomTopCheck();
-                if(res !== undefined){
-                    return res;
-                }
-            }
-            if((first.right == second.right) && (first.left > second.left)) {
-                let res = bottomTopCheck();
-                if(res !== undefined){
-                    return res;
-                }
-            }
-            if((first.right == second.right) && (first.left == second.left)) {
-                let res = bottomTopCheck();
-                if(res !== undefined){
-                    return res;
-                }
-            }
 
-            if((first.left < second.left) && (first.right > second.left)) {
-                let res = bottomTopCheck();
-                if(res !== undefined){
-                    return res;
-                }
-            }
-
-            if(first.left < second.right && first.right > second.right) {
+            if ((first.left < second.left && first.right > second.left) || (first.left < second.right && first.right > second.right)) {
                 return bottomTopCheck();
             }
-            return false;
 
-            function bottomTopCheck(){
-                if(first.bottom >= second.bottom && first.top < second.bottom) {
+
+            return checkExtremePoints();
+
+            function bottomTopCheck() {
+                if (first.bottom >= second.bottom && first.top < second.bottom) {
                     return true;
                 }
 
-                else if(first.bottom >= second.top && first.top < second.top) {
+                if (first.bottom >= second.top && first.top < second.top) {
                     return true;
                 }
 
-                else if(first.bottom == second.bottom || first.top == second.top) {
+                if (first.bottom == second.bottom || first.top == second.top) {
                     return true;
                 }
 
-                else {
-                    return false;
+                return false;
+
+            }
+
+            function leftRightCheck() {
+                if (first.right >= second.right && first.left < second.right) {
+                    return true;
                 }
+
+                if (first.right >= second.left && first.left < second.left) {
+                    return true;
+                }
+
+                if (first.right == second.right || first.left == second.left) {
+                    return true;
+                }
+
+                return false;
+            }
+
+            function checkExtremePoints() {
+                if ((first.left == second.left) && (first.right > second.right)) {
+                    let res = bottomTopCheck();
+                    if (res !== undefined) {
+                        return res;
+                    }
+                }
+                if ((first.right == second.right) && (first.left > second.left)) {
+                    let res = bottomTopCheck();
+                    if (res !== undefined) {
+                        return res;
+                    }
+                }
+
+                if ((first.top == second.top) && (first.bottom > second.bottom)) {
+                    let res = leftRightCheck();
+                    if (res !== undefined) {
+                        return res;
+                    }
+                }
+                if ((first.bottom == second.bottom) && (first.top > second.top)) {
+                    let res = leftRightCheck();
+                    if (res !== undefined) {
+                        return res;
+                    }
+                }
+                if ((first.right == second.right) && (first.left == second.left)) {
+                    let res = bottomTopCheck();
+                    if (res !== undefined) {
+                        return res;
+                    }
+                }
+                if ((first.bottom == second.bottom) && (first.top == second.top)) {
+                    let res = leftRightCheck();
+                    if (res !== undefined) {
+                        return res;
+                    }
+                }
+
+                return false;
             }
         }
     }
@@ -124,9 +160,11 @@ class Level {
     constructor(grid = [], actors = []) {
         this.grid = grid;
         this.actors = actors;
-        this.player = actors.find(actor => { return actor.type == 'player'});
+        this.player = actors.find(actor => {
+            return actor.type == 'player'
+        });
         this.height = this.grid.length;
-        this.width = this.grid.reduce((rez,item) => {
+        this.width = this.grid.reduce((rez, item) => {
             return rez = item.length > rez ? item.length : rez;
         }, 0);
         this.status = null;
@@ -155,10 +193,10 @@ class Level {
         if (!(pos instanceof Vector) || !(size instanceof Vector)) {
             throw new Error('Both params of obstacleAt should be type of Vector');
         }
-        if(pos.x < 0 || pos.y < 0) {
+        if (pos.x < 0 || pos.y < 0) {
             return 'wall';
         }
-        if(pos.y > this.height || pos.y + size.y > this.height){
+        if (pos.y > this.height || pos.y + size.y > this.height) {
             return 'lava';
         }
 
@@ -206,25 +244,29 @@ class Level {
 
 
 class Fireball extends Actor {
-    constructor(pos, speed){
+    constructor(pos, speed) {
         super(pos, speed);
         //this.pos = Object.assign({},pos);
-        this.speed = Object.assign({},speed);
+        this.speed = Object.assign({}, speed);
         this.pos = pos;
     }
+
     get type() {
         return 'fireball';
     }
-    getNextPosition(time = 1){
-        return new Vector(this.pos.x + this.speed.x*time, this.pos.y + this.speed.y*time);
+
+    getNextPosition(time = 1) {
+        return new Vector(this.pos.x + this.speed.x * time, this.pos.y + this.speed.y * time);
     }
-    handleObstacle(){
-        this.speed.x = -1*this.speed.x;
-        this.speed.y = -1*this.speed.y;
+
+    handleObstacle() {
+        this.speed.x = -1 * this.speed.x;
+        this.speed.y = -1 * this.speed.y;
     }
-    act(time, level){
+
+    act(time, level) {
         let pos = this.getNextPosition(time);
-        if(!level.obstacleAt(pos, new Vector(1,1))){
+        if (!level.obstacleAt(pos, new Vector(1, 1))) {
 
             this.pos = pos;
         }
@@ -235,40 +277,44 @@ class Fireball extends Actor {
 }
 
 class HorizontalFireball extends Fireball {
-    constructor(pos, speed){
+    constructor(pos, speed) {
         super(pos, speed);
-        this.speed = new Vector(2,0);
+        this.speed = new Vector(2, 0);
     }
+
     get type() {
         return 'fireball';
     }
 }
 
 class VerticalFireball extends Fireball {
-    constructor(pos, speed){
+    constructor(pos, speed) {
         super(pos, speed);
-        this.speed = new Vector(0,2);
+        this.speed = new Vector(0, 2);
     }
+
     get type() {
         return 'fireball';
     }
 }
 
 class FireRain extends Fireball {
-    constructor(pos, speed){
+    constructor(pos, speed) {
         super(pos, speed);
-        this.originalPos = Object.assign({},pos);
-        this.speed = new Vector(0,3);
+        this.originalPos = Object.assign({}, pos);
+        this.speed = new Vector(0, 3);
     }
+
     get type() {
         return 'fire rain';
     }
-    handleObstacle(){
+
+    handleObstacle() {
         this.pos = Object.assign({}, this.originalPos);
     }
 }
 class Coin extends Actor {
-    constructor(pos){
+    constructor(pos) {
         super(pos);
         this.pos = new Vector(this.pos.x + 0.2, this.pos.y + 0.1);
         this.size = new Vector(0.6, 0.6);
@@ -276,37 +322,44 @@ class Coin extends Actor {
         this.springDist = 0.07;
         this.spring = this.random(0, Math.PI);
     }
+
     get type() {
         return 'coin';
     }
+
     random(min, max) {
         var rand = min - 0.5 + Math.random() * (max - min + 1)
         rand = Math.round(rand);
         return rand;
     }
-    updateSpring(time = 1){
+
+    updateSpring(time = 1) {
         this.spring += this.springSpeed * time;
     }
-    getSpringVector(){
-        return new Vector(0, Math.sin(this.spring)*this.springDist)
+
+    getSpringVector() {
+        return new Vector(0, Math.sin(this.spring) * this.springDist)
     }
-    getNextPosition(time = 1){
+
+    getNextPosition(time = 1) {
         this.updateSpring(time);
-        return new Vector(this.pos.x, this.pos.y + Math.sin(this.spring)*this.springDist);
+        return new Vector(this.pos.x, this.pos.y + Math.sin(this.spring) * this.springDist);
     }
-    act(time = 1){
+
+    act(time = 1) {
         this.pos = this.getNextPosition(time);
     }
 }
 
 class Player extends Actor {
-    constructor(pos){
+    constructor(pos) {
         super(pos);
         this.pos = new Vector(this.pos.x, this.pos.y - 0.5);
         this.size = new Vector(0.8, 1.5);
-        this.speed = new Vector(0,0);
+        this.speed = new Vector(0, 0);
 
     }
+
     get type() {
         return 'player';
     }
@@ -329,53 +382,58 @@ class LevelParser {
             '!': 'lava'
         };
     }
-    obstacleFromSymbol(symbol){
-        if(!symbol) {
+
+    obstacleFromSymbol(symbol) {
+        if (!symbol) {
             return;
         }
-        if(!this.obstacles[symbol]) {
+        if (!this.obstacles[symbol]) {
             return;
         }
         return this.obstacles[symbol];
     }
-    actorFromSymbol(symbol){
-        if(!symbol){
+
+    actorFromSymbol(symbol) {
+        if (!symbol) {
             return;
         }
-        if(!this.actorDictionary[symbol]){
+        if (!this.actorDictionary[symbol]) {
             return;
         }
         try {
             let obj = new this.actorDictionary[symbol](new Vector());
             return obj instanceof Actor ? this.actorDictionary[symbol] : false;
         }
-        catch(err) {
+        catch (err) {
             return;
         }
 
     }
-    createGrid(strings){
+
+    createGrid(strings) {
         return strings.map(string => {
             return string.split('').map(symbol => {
-                if(!this.obstacles[symbol]) {
+                if (!this.obstacles[symbol]) {
                     return;
                 }
-               return this.obstacles[symbol];
+                return this.obstacles[symbol];
             })
         })
     }
-    createActors(strings){
-        if(!strings){
+
+    createActors(strings) {
+        if (!strings) {
             return [];
         }
-        return strings.reduce((rez,string, y) => {
-            return rez.concat(string.split('').reduce((rez,symbol, x) => {
+        return strings.reduce((rez, string, y) => {
+            return rez.concat(string.split('').reduce((rez, symbol, x) => {
 
-               return rez = this.actorFromSymbol(symbol) ? rez.concat(new this.actorDictionary[symbol](new Vector(x,y))) : rez;
-            },[]));
-        },[])
+                return rez = this.actorFromSymbol(symbol) ? rez.concat(new this.actorDictionary[symbol](new Vector(x, y))) : rez;
+            }, []));
+        }, [])
     }
-    parse(plan){
+
+    parse(plan) {
         return new Level(this.createGrid(plan), this.createActors(plan));
     }
 }
