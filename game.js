@@ -54,6 +54,17 @@ class Actor {
         return 'actor';
     }
 
+    pointIsInside(point) {
+        console.log('point', point, 'this', this);
+        if((this.left < point.x && point.x < this.right) && (this.top < point.y && point.y < this.bottom)) {
+            return true;
+        }
+        if((this.left < point.xE && point.xE < this.right) && (this.top < point.yE && point.yE < this.bottom)) {
+            return true;
+        }
+        return false;
+    }
+
     isIntersect(actor) {
         if (!actor || !(actor instanceof  Actor)) {
             throw new Error(`parameter in isIntersect must be an Actor`);
@@ -65,94 +76,155 @@ class Actor {
         if (actor.size.x < 0 || actor.size.y < 0) {
             return false;
         }
+        let secondObject = this;
 
-        return isInside(actor, this) || isInside(this, actor);
+        let objects = getObjectsForParsing(actor, secondObject);
+        let rez = objects.pointsList.find(point => this.pointIsInside(point).bind(objects.overObject));
+        console.log('rez', rez);
+        return rez;
+        function getObjectsForParsing(actor, secondObject) {
+            let rez = {
+                pointsList : [],
+                overObject : {}
+                };
+            if (actor.size.x + actor.size.y < secondObject.size.x + secondObject.size.y) {
 
+                rez.pointsList = makePointsArray(actor);
+                rez.overObject.left = secondObject.left;
+                rez.overObject.right = secondObject.right;
+                rez.overObject.top = secondObject.top;
+                rez.overObject.bottom = secondObject.bottom;
 
-        function isInside(first, second) {
-
-            if ((first.left < second.left && first.right > second.left) || (first.left < second.right && first.right > second.right)) {
-                return bottomTopCheck();
+                return rez;
             }
 
+            rez.pointsList = makePointsArray(secondObject);
+            rez.overObject.left = actor.left;
+            rez.overObject.right = actor.right;
+            rez.overObject.top = actor.top;
+            rez.overObject.bottom = actor.bottom;
 
-            return checkExtremePoints();
+            return rez;
 
-            function bottomTopCheck() {
-                if (first.bottom >= second.bottom && first.top < second.bottom) {
-                    return true;
-                }
-
-                if (first.bottom >= second.top && first.top < second.top) {
-                    return true;
-                }
-
-                if (first.bottom == second.bottom || first.top == second.top) {
-                    return true;
-                }
-
-                return false;
-
-            }
-
-            function leftRightCheck() {
-                if (first.right >= second.right && first.left < second.right) {
-                    return true;
-                }
-
-                if (first.right >= second.left && first.left < second.left) {
-                    return true;
-                }
-
-                if (first.right == second.right || first.left == second.left) {
-                    return true;
-                }
-
-                return false;
-            }
-
-            function checkExtremePoints() {
-                if ((first.left == second.left) && (first.right > second.right)) {
-                    let res = bottomTopCheck();
-                    if (res !== undefined) {
-                        return res;
-                    }
-                }
-                if ((first.right == second.right) && (first.left > second.left)) {
-                    let res = bottomTopCheck();
-                    if (res !== undefined) {
-                        return res;
-                    }
-                }
-
-                if ((first.top == second.top) && (first.bottom > second.bottom)) {
-                    let res = leftRightCheck();
-                    if (res !== undefined) {
-                        return res;
-                    }
-                }
-                if ((first.bottom == second.bottom) && (first.top > second.top)) {
-                    let res = leftRightCheck();
-                    if (res !== undefined) {
-                        return res;
-                    }
-                }
-                if ((first.right == second.right) && (first.left == second.left)) {
-                    let res = bottomTopCheck();
-                    if (res !== undefined) {
-                        return res;
-                    }
-                }
-                if ((first.bottom == second.bottom) && (first.top == second.top)) {
-                    let res = leftRightCheck();
-                    if (res !== undefined) {
-                        return res;
-                    }
-                }
-
-                return false;
+            function makePointsArray(obj){
+                let pointsList = [];
+                let epsilonX = obj.size.x / 100;
+                let epsilonY = obj.size.y / 100;
+                pointsList[0] = {
+                    x: obj.left,
+                    y: obj.top,
+                    xE: obj.left + epsilonX,
+                    yE: obj.top + epsilonY
+                };
+                pointsList[1] = {
+                    x: obj.right,
+                    y: obj.top,
+                    xE: obj.right - epsilonX,
+                    yE: obj.top + epsilonY
+                };
+                pointsList[2] = {
+                    x: obj.right,
+                    y: obj.bottom,
+                    xE: obj.right - epsilonX,
+                    yE: obj.bottom - epsilonY
+                };
+                pointsList[3] = {
+                    x: obj.left,
+                    y: obj.bottom,
+                    xE: obj.left + epsilonX,
+                    yE: obj.bottom - epsilonY
+                };
+                return pointsList;
             }
         }
+
+        //return isInside(actor, this) || isInside(this, actor);
+        //
+        //
+        //function isInside(first, second) {
+        //
+        //    if ((first.left < second.left && first.right > second.left) || (first.left < second.right && first.right > second.right)) {
+        //        return bottomTopCheck();
+        //    }
+        //
+        //
+        //    return checkExtremePoints();
+        //
+        //    function bottomTopCheck() {
+        //        if (first.bottom >= second.bottom && first.top < second.bottom) {
+        //            return true;
+        //        }
+        //
+        //        if (first.bottom >= second.top && first.top < second.top) {
+        //            return true;
+        //        }
+        //
+        //        if (first.bottom == second.bottom || first.top == second.top) {
+        //            return true;
+        //        }
+        //
+        //        return false;
+        //
+        //    }
+        //
+        //    function leftRightCheck() {
+        //        if (first.right >= second.right && first.left < second.right) {
+        //            return true;
+        //        }
+        //
+        //        if (first.right >= second.left && first.left < second.left) {
+        //            return true;
+        //        }
+        //
+        //        if (first.right == second.right || first.left == second.left) {
+        //            return true;
+        //        }
+        //
+        //        return false;
+        //    }
+        //
+        //    function checkExtremePoints() {
+        //        if ((first.left == second.left) && (first.right > second.right)) {
+        //            let res = bottomTopCheck();
+        //            if (res !== undefined) {
+        //                return res;
+        //            }
+        //        }
+        //        if ((first.right == second.right) && (first.left > second.left)) {
+        //            let res = bottomTopCheck();
+        //            if (res !== undefined) {
+        //                return res;
+        //            }
+        //        }
+        //
+        //        if ((first.top == second.top) && (first.bottom > second.bottom)) {
+        //            let res = leftRightCheck();
+        //            if (res !== undefined) {
+        //                return res;
+        //            }
+        //        }
+        //        if ((first.bottom == second.bottom) && (first.top > second.top)) {
+        //            let res = leftRightCheck();
+        //            if (res !== undefined) {
+        //                return res;
+        //            }
+        //        }
+        //        if ((first.right == second.right) && (first.left == second.left)) {
+        //            let res = bottomTopCheck();
+        //            if (res !== undefined) {
+        //                return res;
+        //            }
+        //        }
+        //        if ((first.bottom == second.bottom) && (first.top == second.top)) {
+        //            let res = leftRightCheck();
+        //            if (res !== undefined) {
+        //                return res;
+        //            }
+        //        }
+        //
+        //        return false;
+        //    }
+        //}
     }
 }
 
