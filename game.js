@@ -55,7 +55,6 @@ class Actor {
     }
 
     pointIsInside(point, object) {
-        console.log('point', point, 'object', object);
         if((object.left < point.x && point.x < object.right) && (object.top < point.y && point.y < object.bottom)) {
             return true;
         }
