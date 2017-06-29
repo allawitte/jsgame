@@ -58,8 +58,30 @@ class Actor {
         if ((object.left < point.x && point.x < object.right) && (object.top < point.y && point.y < object.bottom)) {
             return true;
         }
-        if ((object.left < point.xE && point.xE < object.right) && (object.top < point.yE && point.yE < object.bottom)) {
+
+        return false;
+    }
+    extremeCheck(first, second){
+        if (first.left == second.left && first.right == second.right && first.top == second.top && first.bottom == second.bottom) {
             return true;
+        }
+
+        if (first.left == second.left && first.right == second.right) {
+            if ((first.top < second.top && first.bottom > second.top) || (first.top < second.bottom && first.bottom > second.bottom)) {
+                return true
+            }
+            if ((second.top < first.top && second.bottom > first.top) || (second.top < first.bottom && first.bottom > first.bottom)) {
+                return true
+            }
+        }
+
+        if (first.top == second.top && first.bottom == second.bottom) {
+            if ((first.left < second.left && first.right > second.left) || (first.top < second.right && first.right > second.right)) {
+                return true
+            }
+            if ((second.left < first.left && second.right > first.left) || (second.top < first.right && second.right > first.right)) {
+                return true
+            }
         }
         return false;
     }
@@ -75,11 +97,15 @@ class Actor {
         if (actor.size.x < 0 || actor.size.y < 0) {
             return false;
         }
+
+
         let thisObject = this;
 
         let objects = getObjectsForParsing(actor, thisObject);
         let rez = objects.pointsList.find(point => this.pointIsInside(point, objects.outerObject)) ? true : false;
-        return rez;
+        return rez || this.extremeCheck(actor, this);
+
+
         function getObjectsForParsing(actor, thisObject) {
             let rez = {
                 pointsList: [],
@@ -106,31 +132,22 @@ class Actor {
 
             function makePointsArray(obj) {
                 let pointsList = [];
-                let epsilonX = obj.size.x / 100;
-                let epsilonY = obj.size.y / 100;
+
                 pointsList[0] = {
                     x: obj.left,
-                    y: obj.top,
-                    xE: obj.left + epsilonX,
-                    yE: obj.top + epsilonY
+                    y: obj.top
                 };
                 pointsList[1] = {
                     x: obj.right,
-                    y: obj.top,
-                    xE: obj.right - epsilonX,
-                    yE: obj.top + epsilonY
+                    y: obj.top
                 };
                 pointsList[2] = {
                     x: obj.right,
-                    y: obj.bottom,
-                    xE: obj.right - epsilonX,
-                    yE: obj.bottom - epsilonY
+                    y: obj.bottom
                 };
                 pointsList[3] = {
                     x: obj.left,
-                    y: obj.bottom,
-                    xE: obj.left + epsilonX,
-                    yE: obj.bottom - epsilonY
+                    y: obj.bottom
                 };
                 return pointsList;
             }

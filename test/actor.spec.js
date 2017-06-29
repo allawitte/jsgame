@@ -204,7 +204,7 @@ describe('Класс Actor', () => {
 
     it('Объект пересекается с объектом, который частично содержится в нём', () => {
       const player = new Actor(position, size);
-
+      console.log('player', player.left, player.right, player.top, player.bottom);
       const moveX = new Vector(1, 0);
       const moveY = new Vector(0, 1);
 
@@ -216,7 +216,7 @@ describe('Класс Actor', () => {
       ];
 
       coins.forEach(coin => {
-
+        console.log('coin',coin.left, coin.right, coin.top, coin.bottom);
         const intersected = player.isIntersect(coin);
 
         expect(intersected).is.equal(true);
