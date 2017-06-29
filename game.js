@@ -55,10 +55,10 @@ class Actor {
     }
 
     pointIsInside(point, object) {
-        if((object.left < point.x && point.x < object.right) && (object.top < point.y && point.y < object.bottom)) {
+        if ((object.left < point.x && point.x < object.right) && (object.top < point.y && point.y < object.bottom)) {
             return true;
         }
-        if((object.left < point.xE && point.xE < object.right) && (object.top < point.yE && point.yE < object.bottom)) {
+        if ((object.left < point.xE && point.xE < object.right) && (object.top < point.yE && point.yE < object.bottom)) {
             return true;
         }
         return false;
@@ -75,36 +75,36 @@ class Actor {
         if (actor.size.x < 0 || actor.size.y < 0) {
             return false;
         }
-        let secondObject = this;
+        let thisObject = this;
 
-        let objects = getObjectsForParsing(actor, secondObject);
-        let rez = objects.pointsList.find(point => this.pointIsInside(point, objects.overObject)) ? true : false;
+        let objects = getObjectsForParsing(actor, thisObject);
+        let rez = objects.pointsList.find(point => this.pointIsInside(point, objects.outerObject)) ? true : false;
         return rez;
-        function getObjectsForParsing(actor, secondObject) {
+        function getObjectsForParsing(actor, thisObject) {
             let rez = {
-                pointsList : [],
-                overObject : {}
-                };
-            if (actor.size.x + actor.size.y < secondObject.size.x + secondObject.size.y) {
+                pointsList: [],
+                outerObject: {}
+            };
+            if (actor.size.x + actor.size.y < thisObject.size.x + thisObject.size.y) {
 
                 rez.pointsList = makePointsArray(actor);
-                rez.overObject.left = secondObject.left;
-                rez.overObject.right = secondObject.right;
-                rez.overObject.top = secondObject.top;
-                rez.overObject.bottom = secondObject.bottom;
+                rez.outerObject.left = thisObject.left;
+                rez.outerObject.right = thisObject.right;
+                rez.outerObject.top = thisObject.top;
+                rez.outerObject.bottom = thisObject.bottom;
 
                 return rez;
             }
 
-            rez.pointsList = makePointsArray(secondObject);
-            rez.overObject.left = actor.left;
-            rez.overObject.right = actor.right;
-            rez.overObject.top = actor.top;
-            rez.overObject.bottom = actor.bottom;
+            rez.pointsList = makePointsArray(thisObject);
+            rez.outerObject.left = actor.left;
+            rez.outerObject.right = actor.right;
+            rez.outerObject.top = actor.top;
+            rez.outerObject.bottom = actor.bottom;
 
             return rez;
 
-            function makePointsArray(obj){
+            function makePointsArray(obj) {
                 let pointsList = [];
                 let epsilonX = obj.size.x / 100;
                 let epsilonY = obj.size.y / 100;
@@ -136,93 +136,6 @@ class Actor {
             }
         }
 
-        //return isInside(actor, this) || isInside(this, actor);
-        //
-        //
-        //function isInside(first, second) {
-        //
-        //    if ((first.left < second.left && first.right > second.left) || (first.left < second.right && first.right > second.right)) {
-        //        return bottomTopCheck();
-        //    }
-        //
-        //
-        //    return checkExtremePoints();
-        //
-        //    function bottomTopCheck() {
-        //        if (first.bottom >= second.bottom && first.top < second.bottom) {
-        //            return true;
-        //        }
-        //
-        //        if (first.bottom >= second.top && first.top < second.top) {
-        //            return true;
-        //        }
-        //
-        //        if (first.bottom == second.bottom || first.top == second.top) {
-        //            return true;
-        //        }
-        //
-        //        return false;
-        //
-        //    }
-        //
-        //    function leftRightCheck() {
-        //        if (first.right >= second.right && first.left < second.right) {
-        //            return true;
-        //        }
-        //
-        //        if (first.right >= second.left && first.left < second.left) {
-        //            return true;
-        //        }
-        //
-        //        if (first.right == second.right || first.left == second.left) {
-        //            return true;
-        //        }
-        //
-        //        return false;
-        //    }
-        //
-        //    function checkExtremePoints() {
-        //        if ((first.left == second.left) && (first.right > second.right)) {
-        //            let res = bottomTopCheck();
-        //            if (res !== undefined) {
-        //                return res;
-        //            }
-        //        }
-        //        if ((first.right == second.right) && (first.left > second.left)) {
-        //            let res = bottomTopCheck();
-        //            if (res !== undefined) {
-        //                return res;
-        //            }
-        //        }
-        //
-        //        if ((first.top == second.top) && (first.bottom > second.bottom)) {
-        //            let res = leftRightCheck();
-        //            if (res !== undefined) {
-        //                return res;
-        //            }
-        //        }
-        //        if ((first.bottom == second.bottom) && (first.top > second.top)) {
-        //            let res = leftRightCheck();
-        //            if (res !== undefined) {
-        //                return res;
-        //            }
-        //        }
-        //        if ((first.right == second.right) && (first.left == second.left)) {
-        //            let res = bottomTopCheck();
-        //            if (res !== undefined) {
-        //                return res;
-        //            }
-        //        }
-        //        if ((first.bottom == second.bottom) && (first.top == second.top)) {
-        //            let res = leftRightCheck();
-        //            if (res !== undefined) {
-        //                return res;
-        //            }
-        //        }
-        //
-        //        return false;
-        //    }
-        //}
     }
 }
 
@@ -316,7 +229,6 @@ class Level {
 class Fireball extends Actor {
     constructor(pos, speed) {
         super(pos, speed);
-        //this.pos = Object.assign({},pos);
         this.speed = Object.assign({}, speed);
         this.pos = pos;
     }
@@ -435,15 +347,7 @@ class Player extends Actor {
     }
 }
 
-const dict = {
-    'x': 'wall',
-    '!': 'lava',
-    '@': Player,
-    'o': Coin,
-    '=': HorizontalFireball,
-    '|': VerticalFireball,
-    'v': FireRain
-};
+
 class LevelParser {
     constructor(actorDictionary = {}) {
         this.actorDictionary = actorDictionary;
@@ -508,117 +412,13 @@ class LevelParser {
     }
 }
 
-//const grid = [
-//    new Array(3),
-//    ['wall', 'wall', 'lava']
-//];
-//const level = new Level(grid);
-//runLevel(level, DOMDisplay);
-
-//const schema = [
-//    '         ',
-//    '         ',
-//    '         ',
-//    '         ',
-//    '     !xxx',
-//    '         ',
-//    'xxx!     ',
-//    '         '
-//];
-//const parser = new LevelParser();
-//const level = parser.parse(schema);
-//runLevel(level, DOMDisplay);
-
-//const schema = [
-//    '         ',
-//    '         ',
-//    '         ',
-//    '         ',
-//    '     !xxx',
-//    ' @       ',
-//    'xxx!     ',
-//    '         '
-//];
-//const actorDict = {
-//    '@': Player
-//}
-//const parser = new LevelParser(actorDict);
-//const level = parser.parse(schema);
-//runLevel(level, DOMDisplay);
-
-//const schema = [
-//    '         ',
-//    '         ',
-//    '    =    ',
-//    '         ',
-//    '     !xxx',
-//    ' @       ',
-//    'xxx!     ',
-//    '         '
-//];
-//const actorDict = {
-//    '@': Player,
-//    '=': HorizontalFireball
-//};
-//const parser = new LevelParser(actorDict);
-//const level = parser.parse(schema);
-//new DOMDisplay(document.body, level);
-
-//const schema = [
-//    '         ',
-//    '         ',
-//    '    =    ',
-//    '       o ',
-//    '     !xxx',
-//    ' @       ',
-//    'xxx!     ',
-//    '         '
-//];
-//const actorDict = {
-//    '@': Player,
-//    '=': HorizontalFireball
-//}
-//const parser = new LevelParser(actorDict);
-//const level = parser.parse(schema);
-//runLevel(level, DOMDisplay)
-//    .then(status => console.log(`Игрок ${status}`));
-
-//const schemas = [
-//    [
-//        '         ',
-//        '         ',
-//        '    =    ',
-//        '       o ',
-//        '     !xxx',
-//        ' @       ',
-//        'xxx!     ',
-//        '         '
-//    ],
-//    [
-//        '      v  ',
-//        '    v    ',
-//        '  v      ',
-//        '        o',
-//        '        x',
-//        '@   x    ',
-//        'x        ',
-//        '         '
-//    ]
-//];
-//const actorDict = {
-//    '@': Player,
-//    'v': FireRain
-//}
-//const parser = new LevelParser(actorDict);
-//runGame(schemas, parser, DOMDisplay)
-//    .then(() => console.log('Вы выиграли приз!'));
 
 loadLevels().then(rez => {
     const schemas = JSON.parse(rez);
     const actorDict = {
         '@': Player,
         'v': FireRain
-    }
+    };
     const parser = new LevelParser(actorDict);
     runGame(schemas, parser, DOMDisplay)
         .then(() => console.log('Вы выиграли приз!'));
