@@ -54,37 +54,6 @@ class Actor {
         return 'actor';
     }
 
-    pointIsInside(point, object) {
-        if ((object.left < point.x && point.x < object.right) && (object.top < point.y && point.y < object.bottom)) {
-            return true;
-        }
-
-        return false;
-    }
-    extremeCheck(first, second){
-        if (first.left == second.left && first.right == second.right && first.top == second.top && first.bottom == second.bottom) {
-            return true;
-        }
-
-        if (first.left == second.left && first.right == second.right) {
-            if ((first.top < second.top && first.bottom > second.top) || (first.top < second.bottom && first.bottom > second.bottom)) {
-                return true
-            }
-            if ((second.top < first.top && second.bottom > first.top) || (second.top < first.bottom && first.bottom > first.bottom)) {
-                return true
-            }
-        }
-
-        if (first.top == second.top && first.bottom == second.bottom) {
-            if ((first.left < second.left && first.right > second.left) || (first.top < second.right && first.right > second.right)) {
-                return true
-            }
-            if ((second.left < first.left && second.right > first.left) || (second.top < first.right && second.right > first.right)) {
-                return true
-            }
-        }
-        return false;
-    }
 
     isIntersect(actor) {
         if (!actor || !(actor instanceof  Actor)) {
@@ -99,11 +68,27 @@ class Actor {
         }
 
 
-        let thisObject = this;
+        let commonSquareX = Math.max(this.right, actor.right) - Math.min(this.left, actor.left);
+        let commonSquareY = Math.max(this.bottom, actor.bottom) - Math.min(this.top, actor.top);
 
-        let objects = getObjectsForParsing(actor, thisObject);
-        let rez = objects.pointsList.find(point => this.pointIsInside(point, objects.outerObject)) ? true : false;
-        return rez || this.extremeCheck(actor, this);
+        let commonXSize = actor.size.x + this.size.x;
+        let commonYSize = actor.size.y + this.size.y;
+        if (commonSquareX < commonXSize && commonSquareY < commonYSize) {
+            return true;
+        }
+        if (actor.size.x == 0 && actor.size.y == 0) {
+            if (this.left < actor.left < this.right && this.top < actor.top < this.bottom) {
+                return true;
+            }
+        }
+
+        if (this.size.x == 0 && this.size.y == 0) {
+            if (actor.left < this.left < actor.right && actor.top < this.top < actor.bottom) {
+                return true;
+            }
+        }
+
+        return false;
 
 
         function getObjectsForParsing(actor, thisObject) {

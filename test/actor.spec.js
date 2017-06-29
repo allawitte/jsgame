@@ -168,7 +168,6 @@ describe('Класс Actor', () => {
 
     it('Объект не пересекается с объектом со смежными границами', () => {
       const player = new Actor(position, size);
-
       const moveX = new Vector(1, 0);
       const moveY = new Vector(0, 1);
       const coins = [
@@ -180,7 +179,6 @@ describe('Класс Actor', () => {
 
       coins.forEach(coin => {
         const notIntersected = player.isIntersect(coin);
-
         expect(notIntersected).is.equal(false);
       });
     });
@@ -196,7 +194,8 @@ describe('Класс Actor', () => {
     it('Объект пересекается с объектом, который полностью содержится в нём', () => {
       const player = new Actor(new Vector(0, 0), new Vector(100, 100));
       const coin = new Actor(new Vector(10, 10), new Vector());
-
+      console.log('player', player.left, player.right, player.top, player.bottom, player.size);
+      console.log('coin', coin.left, coin.right, coin.top, coin.bottom, coin.size);
       const intersected = player.isIntersect(coin);
 
       expect(intersected).is.equal(true);
@@ -204,7 +203,6 @@ describe('Класс Actor', () => {
 
     it('Объект пересекается с объектом, который частично содержится в нём', () => {
       const player = new Actor(position, size);
-      console.log('player', player.left, player.right, player.top, player.bottom);
       const moveX = new Vector(1, 0);
       const moveY = new Vector(0, 1);
 
@@ -216,9 +214,8 @@ describe('Класс Actor', () => {
       ];
 
       coins.forEach(coin => {
-        console.log('coin',coin.left, coin.right, coin.top, coin.bottom);
         const intersected = player.isIntersect(coin);
-
+        console.log('coin', coin.left, coin.right, coin.top, coin.bottom, coin.size);
         expect(intersected).is.equal(true);
       });
     });
